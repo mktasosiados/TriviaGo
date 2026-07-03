@@ -2,8 +2,10 @@
 const tg = window.Telegram.WebApp;
 tg.expand(); // Expandir la ventana al tamaño completo del móvil
 
-let bancoPreguntas = [];
+let bancoPreguntas = []; // Contendrá el JSON original intacto
+let preguntasDisponibles = []; // Lista dinámica de donde se sacarán las preguntas
 let preguntaActual = null;
+let indicePreguntaActual = -1; // Guardamos el índice para poder removerla después
 let score = 0;
 let lives = 5;
 let timerInterval = null;
@@ -115,6 +117,10 @@ async function cargarPreguntas() {
         const response = await fetch('preguntas.json');
         const data = await response.json();
         bancoPreguntas = data.preguntas;
+        
+        // Copiamos todas las preguntas iniciales a la lista de disponibles
+        preguntasDisponibles = [...bancoPreguntas];
+        
         inicializarVidas();
         
         if (lives > 0) {
@@ -128,6 +134,12 @@ async function cargarPreguntas() {
 }
 
 function siguientePregunta() {
+    // Si se respondieron todas de manera correcta, reiniciamos la lista para no bloquear el juego
+    if (preguntasDisponibles.length === 0) {
+        tg.showAlert("¡Increíble! Respondiste correctamente todo nuestro repertorio. Volviendo a mezclar las preguntas.");
+        preguntasDisponibles = [...bancoPreguntas];
+    }
+
     quizScreen.classList.remove("hidden");
     gameoverScreen.classList.add("hidden");
     
@@ -135,9 +147,9 @@ function siguientePregunta() {
     timeLeft = 15;
     questionTimerElement.innerText = timeLeft;
 
-    // Obtener una pregunta al azar
-    const randomIndex = Math.floor(Math.random() * bancoPreguntas.length);
-    preguntaActual = bancoPreguntas[randomIndex];
+    // Obtener una pregunta al azar usando como base la lista de disponibles
+    indicePreguntaActual = Math.floor(Math.random() * preguntasDisponibles.length);
+    preguntaActual = preguntasDisponibles[indicePreguntaActual];
 
     categoryBadge.innerText = preguntaActual.categoria;
     questionText.innerText = preguntaActual.pregunta;
@@ -179,8 +191,13 @@ function verificarRespuesta(opcionSeleccionada) {
     if (opcionSeleccionada === preguntaActual.correcta) {
         score += 10;
         scoreDisplay.innerText = score;
+        
+        // ELIMINAR PREGUNTA: Al ser correcta, la removemos de la lista para que no se repita
+        preguntasDisponibles.splice(indicePreguntaActual, 1);
+        
         siguientePregunta();
     } else {
+        // Si falla, NO la removemos (así el usuario tiene la oportunidad de volver a verla e intentar acertar después)
         quitarVida();
     }
 }
@@ -192,24 +209,38 @@ function mostrarGameOver() {
 }
 
 // --- INTEGRACIÓN PUBLICITARIA (PROPELLERADS) ---
-btnRewardVideo.onclick = () => {
-    // Intenta ejecutar el tag interstitial/video de PropellerAds cargado en el HTML
-    if (typeof showAtag === 'function') {
-        showAtag(); // Invoca la ventana publicitaria si está disponible globalmente
+// Función para mostrar el anuncio cuando el usuario se queda sin vidas
+function ofrecerVidaExtraPorAnuncio() {
+    // Aquí puedes usar un cuadro de diálogo nativo de Telegram o HTML personalizado
+    if (confirm("Te has quedado sin vidas. ¿Deseas ver un video corto para ganar 1 vida extra?")) {
+        
+        // Llamamos a la función de Monetag para activar el Rewarded Interstitial
+        show_11235932()
+            .then(() => {
+                // ESTA SECCIÓN SE EJECUTA SI EL USUARIO VE EL ANUNCIO
+                
+                // 1. Otorgar la vida extra en el juego
+                lives = 1; 
+                
+                // 2. Guardar la actualización en el localStorage para evitar trampas
+                localStorage.setItem('trivia_vidas', lives);
+                
+                // 3. Notificar al usuario con la interfaz de Telegram o una alerta
+                alert('¡Gracias por ver el anuncio! Has ganado 1 vida extra.');
+                
+                // 4. Continuar el juego (volver a cargar o reanudar la partida)
+                siguientePregunta(); 
+            })
+            .catch((error) => {
+                // En caso de que el anuncio falle, no cargue o sea cancelado
+                console.error("Error al cargar el anuncio:", error);
+                alert("No se pudo otorgar la vida en este momento. Inténtalo más tarde.");
+            });
+            
     } else {
-        // Fallback o simulación si el bloqueador de anuncios detiene el script externo
-        console.log("Invocando anuncio de PropellerAds...");
+        // Si el usuario rechaza ver el anuncio, se mantiene el Game Over o la pantalla de espera
+        alert("Podrás recuperar vidas automáticamente esperando el tiempo de cuenta regresiva.");
     }
-
-    // Simulador de recompensa tras visualización
-    // En entornos reales, puedes añadir lógica ligada a eventos si tu tag lo permite.
-    setTimeout(() => {
-        lives += 1;
-        actualizarInterfazVidas();
-        siguientePregunta();
-        tg.showAlert("¡Has ganado 1 vida extra por ver el video!");
-    }, 2000); 
-};
-
+}
 // Iniciar aplicación al cargar el documento
 window.onload = cargarPreguntas;
