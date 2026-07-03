@@ -208,39 +208,32 @@ function mostrarGameOver() {
     gameoverScreen.classList.remove("hidden");
 }
 
-// --- INTEGRACIÓN PUBLICITARIA (PROPELLERADS) ---
-// Función para mostrar el anuncio cuando el usuario se queda sin vidas
-function ofrecerVidaExtraPorAnuncio() {
-    // Aquí puedes usar un cuadro de diálogo nativo de Telegram o HTML personalizado
-    if (confirm("Te has quedado sin vidas. ¿Deseas ver un video corto para ganar 1 vida extra?")) {
-        
-        // Llamamos a la función de Monetag para activar el Rewarded Interstitial
+// --- INTEGRACIÓN PUBLICITARIA (MONETAG / PROPELLERADS) ---
+btnRewardVideo.onclick = () => {
+    // Verificamos si la función de Monetag está disponible de forma global
+    if (typeof show_11235932 === 'function') {
         show_11235932()
             .then(() => {
-                // ESTA SECCIÓN SE EJECUTA SI EL USUARIO VE EL ANUNCIO
-                
-                // 1. Otorgar la vida extra en el juego
-                lives = 1; 
-                
-                // 2. Guardar la actualización en el localStorage para evitar trampas
-                localStorage.setItem('trivia_vidas', lives);
-                
-                // 3. Notificar al usuario con la interfaz de Telegram o una alerta
-                alert('¡Gracias por ver el anuncio! Has ganado 1 vida extra.');
-                
-                // 4. Continuar el juego (volver a cargar o reanudar la partida)
-                siguientePregunta(); 
+                // Éxito: El anuncio se mostró completamente, entregamos recompensa
+                lives += 1;
+                actualizarInterfazVidas();
+                siguientePregunta();
+                tg.showAlert("¡Has ganado 1 vida extra por ver el video!");
             })
             .catch((error) => {
-                // En caso de que el anuncio falle, no cargue o sea cancelado
-                console.error("Error al cargar el anuncio:", error);
-                alert("No se pudo otorgar la vida en este momento. Inténtalo más tarde.");
+                // Error o Anuncio Cerrado/No disponible
+                console.error("Error al mostrar el anuncio o fue omitido:", error);
+                tg.showAlert("No se pudo completar el video publicitario. Inténtalo de nuevo más tarde.");
             });
-            
     } else {
-        // Si el usuario rechaza ver el anuncio, se mantiene el Game Over o la pantalla de espera
-        alert("Podrás recuperar vidas automáticamente esperando el tiempo de cuenta regresiva.");
+        // Fallback de seguridad en desarrollo local o si actúa un AdBlocker
+        console.log("Algo no anduvo bien. Otorgando vida en modo prueba...");
+        lives += 1;
+        actualizarInterfazVidas();
+        siguientePregunta();
+        tg.showAlert("¡Se ha otorgado 1 vida!");
     }
-}
+};
+
 // Iniciar aplicación al cargar el documento
 window.onload = cargarPreguntas;
