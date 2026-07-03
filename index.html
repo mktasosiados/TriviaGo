@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TriviaGo</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <script>
+        // Configuración de Interstitial / Reward Video de PropellerAds
+        (function(s,u,z,p){s.src=u;s.setAttribute('data-zone',z);p.appendChild(s);})
+        (document.createElement('script'),'https://iclickcdn.com/tag.min.js', 0000000, document.body||document.documentElement); // Reemplaza 0000000 por tu Zone ID
+    </script>
+</head>
+<body>
+    <div id="game-container">
+        <header>
+            <div class="stats-left">
+                <span id="lives-display">❤️ ❤️ ❤️ ❤️ ❤️</span>
+                <span id="cooldown-timer" class="hidden">⌛ 60:00</span>
+            </div>
+            <div class="stats-right">
+                <span>Puntos: <strong id="score-display">0</strong></span>
+            </div>
+        </header>
+
+        <div class="game-meta">
+            <span id="category-badge">Categoría</span>
+            <div id="question-timer">15</div>
+        </div>
+
+        <main id="quiz-screen">
+            <h2 id="question-text">Cargando pregunta...</h2>
+            <div id="options-container">
+                </div>
+        </main>
+
+        <div id="gameover-screen" class="hidden">
+            <h2>¡Te quedaste sin vidas!</h2>
+            <p>Puedes esperar a que se recarguen de forma gratuita o mirar un anuncio para conseguir una vida extra ya mismo.</p>
+            <button id="btn-reward-video" class="btn-action">🎬 Ver Video (+1 Vida)</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

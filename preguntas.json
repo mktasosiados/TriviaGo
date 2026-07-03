@@ -1,0 +1,34 @@
+{
+  "preguntas": [
+    {
+      "categoria": "Cine",
+      "pregunta": "¿En qué año se estrenó la película Titanic?",
+      "opciones": ["1997", "1995", "1999", "2001"],
+      "correcta": "1997"
+    },
+    {
+      "categoria": "Cine",
+      "pregunta": "¿Qué actor interpretó a Iron Man en el Universo Marvel?",
+      "opciones": ["Robert Downey Jr.", "Chris Evans", "Scarlett Johansson", "Mark Ruffalo"],
+      "correcta": "Robert Downey Jr."
+    },
+    {
+      "categoria": "Fútbol",
+      "pregunta": "¿Qué país ganó el Mundial de Fútbol de la FIFA en Qatar 2022?",
+      "opciones": ["Argentina", "Francia", "Brasil", "Croacia"],
+      "correcta": "Argentina"
+    },
+    {
+      "categoria": "Cultura General",
+      "pregunta": "¿Cuál es el océano más grande del mundo?",
+      "opciones": ["Océano Pacífico", "Océano Atlántico", "Océano Índico", "Océano Ártico"],
+      "correcta": "Océano Pacífico"
+    },
+    {
+      "categoria": "Memes",
+      "pregunta": "¿Qué animal protagoniza el famoso meme 'Cheems'?",
+      "opciones": ["Un perro (Shiba Inu)", "Un gato", "Un mapache", "Un oso"],
+      "correcta": "Un perro (Shiba Inu)"
+    }
+  ]
+}
